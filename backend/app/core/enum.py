@@ -10,3 +10,10 @@ class ResumeStatus(Enum):
     PROCESSING="processing"
     COMPLETED="completed"
     FAILED="failed"
+
+class InterviewStatus(Enum):
+    CREATED="CREATED"
+    QUESTIONS_GENERATED="QUESTIONS_GENERATED"
+    IN_PROGRESS="IN_PROGRESS"
+    COMPLETED="COMPLETED"
+    FAILED="FAILED"

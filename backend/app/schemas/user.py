@@ -23,6 +23,14 @@ class UserResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     
 class Token(BaseModel):
-    access_token:str
-    token_type:str="bearer"
+    access_token: str
+    refresh_token: str
+    token_type: str = "bearer"
+
+class RefreshTokenRequest(BaseModel):    
+    refresh_token: str
+
+class ChangePasswordRequest(BaseModel):
+    old_password: str
+    new_password: str
     

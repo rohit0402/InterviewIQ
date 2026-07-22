@@ -20,3 +20,12 @@ class ResumeAnalysisRepository:
         db.commit()
         db.refresh(resume_analysis)
         return resume_analysis
+    
+    @staticmethod
+    def get_by_id(db:Session,analysis_id:int):
+        return (db.query(ResumeAnalysis).filter(ResumeAnalysis.id==analysis_id).first())
+    
+    @staticmethod
+    def delete(db:Session,resume_analysis:ResumeAnalysis):
+        db.delete(resume_analysis)
+        db.commit()

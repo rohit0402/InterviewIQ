@@ -6,6 +6,7 @@ from app.core.enum import UserRole
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from app.models.resume import Resume
+    from app.models.interview import Interview
 class User(Base):
     __tablename__ = "users"
     id: Mapped[int]=mapped_column(primary_key=True,index=True)
@@ -18,3 +19,5 @@ class User(Base):
     updated_at: Mapped[datetime]=mapped_column(DateTime(timezone=True),server_default=func.now(),onupdate=func.now())
     role: Mapped[str]=mapped_column(String(20),default=UserRole.CANDIDATE.value)
     resume:Mapped["Resume"]=relationship("Resume",back_populates="owner",uselist=False,cascade="all,delete-orphan")
+    interviews:Mapped["Interview"]=relationship("Interview",back_populates="user",uselist=True,cascade="all,delete-orphan")
+    refresh_token:Mapped[str]=mapped_column(String(255),nullable=True)

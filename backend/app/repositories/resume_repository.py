@@ -25,3 +25,7 @@ class ResumeRepository:
     def delete(db:Session,resume:Resume):
         db.delete(resume)
         db.commit()
+
+    @staticmethod
+    def get_by_id(db:Session,resume_id:int):
+        return db.query(Resume).filter(Resume.id==resume_id).first()

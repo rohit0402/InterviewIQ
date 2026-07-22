@@ -21,3 +21,22 @@ class UserRepository:
         db.commit() 
         db.refresh(user)    
         return user
+    
+    @staticmethod
+    def update_refresh_token(db: Session,user: User,refresh_token: str | None,) -> User:
+        user.refresh_token = refresh_token
+        db.commit()
+        db.refresh(user)
+        return user
+    
+    @staticmethod
+    def get_by_refresh_token(db: Session, refresh_token: str) -> User | None:
+        print("Searching for:", refresh_token)
+
+        stmt = select(User).where(User.refresh_token == refresh_token)
+
+        result = db.scalar(stmt)
+
+        print("Result:", result)
+
+        return result

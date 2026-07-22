@@ -6,11 +6,15 @@ from sqlalchemy import pool
 from alembic import context
 
 from app.database.base import Base
-
+from app.models.interview_analysis import InterviewAnalysis
 from app.core.config import settings
 from app.models.user import User
 from app.models.resume import Resume
 from app.models.resume_analysis import ResumeAnalysis
+from app.models.interview_question import InterviewQuestion
+from app.models.interview_answer import InterviewAnswer
+from app.models.interview import Interview
+from app.models.interview_report import InterviewReport
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
@@ -30,7 +34,7 @@ if config.config_file_name is not None:
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 target_metadata = Base.metadata
-print(Base.metadata.tables.keys())
+
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")
