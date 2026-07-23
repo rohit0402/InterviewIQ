@@ -66,7 +66,7 @@ class InterviewService:
     @staticmethod
     def start_interview(db,interview):
         question=QuestionService.generate_first_question(db=db,interview=interview,resume_analysis=interview.resume.analysis,interview_analysis=interview.analysis)
-        interview_status=InterviewStatus.IN_PROGRESS
+        interview.status=InterviewStatus.IN_PROGRESS
         db.commit()
         db.refresh(interview)
         return question

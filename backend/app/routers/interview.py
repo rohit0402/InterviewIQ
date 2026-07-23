@@ -6,7 +6,7 @@ from app.database.dependencies import get_db
 
 from app.models.user import User
 from app.services.next_question_service import NextQuestionService
-from app.schemas.interview import ( InterviewCreate,InterviewResponse,)
+from app.schemas.interview import ( InterviewCreate,InterviewResponse, InterviewReportResponse,)
 from app.schemas.interview_question import InterviewQuestionResponse
 from app.services.interview_service import InterviewService
 from app.services.resume_service import ResumeService
@@ -124,7 +124,10 @@ def next_question(
         interview_analysis=interview.analysis,
     )
 
-@router.post("/{interview_id}/finish")
+@router.post(
+    "/{interview_id}/finish",
+    response_model=InterviewReportResponse,
+)
 def finish_interview(interview_id: int,db: Session = Depends(get_db),current_user = Depends(get_current_user),):
     interview=InterviewRepository.get_by_id(db,interview_id,)
     if interview is None:

@@ -1,10 +1,9 @@
 from sqlalchemy.orm import Session
 from app.models.user import User    
 from app.repositories.user_repository import UserRepository
-from app.schemas.user import UserCreate,UserLogin,Token
+from app.schemas.user import UserCreate,TokenPair
 from app.core.security import hash_password,verify_password
 from app.core.jwt import create_access_token,create_refresh_token,decode_token
-from app.schemas.user import Token
 
 class AuthService:
     @staticmethod
@@ -20,7 +19,7 @@ class AuthService:
         return UserRepository.create(db,user)
     
     @staticmethod
-    def login(db:Session,email:str,password:str)->Token:
+    def login(db:Session,email:str,password:str)->TokenPair:
         user=UserRepository.get_by_email(db,email)
         if not user:
             raise ValueError("Invalid email or password")
@@ -48,13 +47,13 @@ class AuthService:
             refresh_token,
         )
 
-        return Token(
-            access_token=access_token,
-            refresh_token=refresh_token,
-        )
+        return TokenPair(
+    access_token=access_token,
+    refresh_token=refresh_token,
+)
     
     @staticmethod
-    def refresh_token(db: Session, refresh_token: str) -> Token:
+    def refresh_token(db: Session, refresh_token: str) -> TokenPair:
         user = UserRepository.get_by_refresh_token(db, refresh_token)
 
         if user is None:
@@ -80,10 +79,10 @@ class AuthService:
             }
         )
 
-        return Token(
-            access_token=access_token,
-            refresh_token=refresh_token,
-        )
+        return TokenPair(
+    access_token=access_token,
+    refresh_token=refresh_token,
+)
     
 
     @staticmethod

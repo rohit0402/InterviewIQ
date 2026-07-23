@@ -14,6 +14,18 @@ from app.repositories.resume_analysis_repository import (
 
 
 class ResumeService:
+    @staticmethod
+    def _to_resume_response(resume: Resume) -> ResumeResponse:
+        return ResumeResponse(
+            id=resume.id,
+            original_filename=resume.original_filename,
+            file_size=resume.file_size,
+            mime_type=resume.mime_type,
+            status=resume.status,
+            analysis_available=resume.analysis is not None,
+            created_at=resume.created_at,
+        )
+
 
     @staticmethod
     def upload_resume(db: Session,file: UploadFile,current_user: User,) -> ResumeResponse:
@@ -43,15 +55,13 @@ class ResumeService:
                 existing_resume = ResumeRepository.update(db,existing_resume,)
 
                 try:
-                    ResumeAnalysisService.analyze_resume(db,resume,)
+                    ResumeAnalysisService.analyze_resume(db,existing_resume,)
                 except Exception:
-                    resume.status = ResumeStatus.FAILED
-                    ResumeRepository.update(db, resume)
+                    existing_resume.status = ResumeStatus.FAILED
+                    ResumeRepository.update(db, existing_resume)
                     raise
 
-                return ResumeResponse.model_validate(
-                    existing_resume
-                )
+                return ResumeService._to_resume_response(existing_resume)
 
             resume = Resume(
                 user_id=current_user.id,
@@ -72,7 +82,7 @@ class ResumeService:
                 ResumeRepository.update(db, resume)
                 raise
 
-            return ResumeResponse.model_validate(resume)
+            return ResumeService._to_resume_response(resume)
 
         except Exception:
             FileStorage.delete_resume(file_path)
@@ -86,7 +96,7 @@ class ResumeService:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Resume not found",
             )
-        return ResumeResponse.model_validate(resume)
+        return ResumeService._to_resume_response(resume)
     
     @staticmethod
     def delete_resume(db: Session,current_user:User):

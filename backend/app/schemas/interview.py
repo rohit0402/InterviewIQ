@@ -25,3 +25,20 @@ class InterviewResponse(BaseModel):
     updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+class InterviewReportResponse(BaseModel):
+    overall_score: float
+    communication_score: float
+    technical_score: float
+    problem_solving_score: float
+
+    strengths: list[str]
+    weaknesses: list[str]
+
+    summary: str
+
+    hiring_recommendation: str
+
+    improvement_plan: list[str]
+
+    model_config = ConfigDict(from_attributes=True)

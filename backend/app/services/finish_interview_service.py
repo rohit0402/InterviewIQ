@@ -1,43 +1,80 @@
-from datetime import datetime
+import logging
+
+from fastapi import HTTPException
 
 from app.ai.ai_service import AIService
 
 from app.models.interview import InterviewStatus
 from app.models.interview_report import InterviewReport
 
-from app.repositories.interview_report_repository import InterviewReportRepository
+from app.repositories.interview_report_repository import (
+    InterviewReportRepository,
+)
 
+logger = logging.getLogger(__name__)
 
 
 class FinishInterviewService:
 
     @staticmethod
-    def finish(db,interview,resume_analysis,interview_analysis,):
-        history = []
-        for question in interview.questions:
-            history.append(
-                {
-                    "question": question.question,
-                    "answer": (
-                        question.answer.answer
-                        if question.answer
-                        else None
-                    ),
-                    "score": (
-                        question.answer.score
-                        if question.answer
-                        else None
-                    ),
-                }
+    def finish(
+        db,
+        interview,
+        resume_analysis,
+        interview_analysis,
+    ):
+        existing_report = (
+            InterviewReportRepository.get_by_interview_id(
+                db,
+                interview.id,
             )
+        )
+
+        if interview.status == InterviewStatus.COMPLETED:
+            return existing_report
+
+        if interview.status != InterviewStatus.IN_PROGRESS:
+            raise HTTPException(
+                status_code=400,
+                detail="Interview is not in progress.",
+            )
+
+        answered_questions = [
+            question
+            for question in interview.questions
+            if question.answer is not None
+        ]
+
+        if not answered_questions:
+            raise HTTPException(
+                status_code=400,
+                detail="No interview answers submitted.",
+            )
+
+        history = [
+            {
+                "question": question.question,
+                "answer": question.answer.answer,
+                "score": question.answer.score,
+            }
+            for question in answered_questions
+        ]
 
         ai = AIService()
 
-        result = ai.generate_final_report(
-            resume_analysis,
-            interview_analysis,
-            history,
-        )
+        try:
+            result = ai.generate_final_report(
+                resume_analysis,
+                interview_analysis,
+                history,
+            )
+        except Exception:
+            logger.exception("Failed to generate interview report")
+
+            raise HTTPException(
+                status_code=500,
+                detail="Failed to generate interview report.",
+            )
 
         report = InterviewReport(
             interview_id=interview.id,
