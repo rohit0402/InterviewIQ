@@ -1,9 +1,10 @@
 import axios from "axios";
 import { store } from "../app/store";
-import { logoutUser, refreshAccessToken } from "../utils/auth";
+import { logoutUser, refreshToken } from "../utils/auth";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
+  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },
@@ -30,19 +31,22 @@ api.interceptors.response.use(
 
     if (
       error.response?.status === 401 &&
-      !originalRequest._retry
+      !originalRequest._retry&&
+      !originalRequest.url.includes("/auth/login") &&
+      !originalRequest.url.includes("/auth/refresh")
     ) {
       originalRequest._retry = true;
 
       try {
-        const newAccessToken = await refreshAccessToken();
+        const newAccessToken = await refreshToken();
 
         originalRequest.headers.Authorization =
           `Bearer ${newAccessToken}`;
 
         return api(originalRequest);
       } catch (err) {
-        logoutUser();
+        await logoutUser();
+        window.location.href = "/";
         return Promise.reject(err);
       }
     }

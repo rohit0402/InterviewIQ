@@ -1,24 +1,28 @@
 import { store } from "../app/store";
 import { setCredentials, clearCredentials } from "../features/auth/authSlice";
-import {refresh} from "../api/authApi";
+import {getCurrentUser} from "../api/authApi";
+import api from "../api/axios";
 
 export const refreshToken = async () => {
-    const auth=store.getState().auth;
+    try{
+        const response= await api.post("/auth/refresh");
 
-    if(!auth.refreshToken){
-        throw new Error("Refresh token not found");
+        const accessToken=response.data.access_token;
+        
+        store.dispatch(setCredentials({user:store.getState().auth.user,accessToken}));
+        return accessToken;
     }
-    const response=await refresh(auth.refreshToken);
-    store.dispatch(
-        setCredentials({
-            user:auth.user,
-            accessToken:response.access_token,
-            refreshToken:auth.refreshToken,
-        })
-    );
-    return response.accessToken;
+    catch(error){
+        store.dispatch(clearCredentials());
+        throw error;
+    }
 };
 
-export const logoutUser=  ()=>{
+export const logoutUser= async () =>{
+    try{
+        await api.post("/auth/logout");
+    }catch(error){
+
+    }
     store.dispatch(clearCredentials());
 }
