@@ -15,6 +15,9 @@ from app.models.interview_question import InterviewQuestion
 from app.models.interview_answer import InterviewAnswer
 from app.models.interview import Interview
 from app.models.interview_report import InterviewReport
+from app.models.interview_question_insight import InterviewQuestionInsight
+from app.models.email_verification_token import EmailVerificationToken
+from app.models.password_reset_token import PasswordResetToken
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config

@@ -2,11 +2,13 @@ from fastapi import APIRouter,Depends,HTTPException,status,Response,Request
 from sqlalchemy.orm import Session
 from app.database.dependencies import get_db
 from app.schemas.user import UserCreate,UserResponse,Token,RefreshTokenRequest,ChangePasswordRequest,UserLogin
-
+from app.services.password_reset_service import PasswordResetService
 from app.services.auth_service import AuthService
 from fastapi.security import OAuth2PasswordRequestForm
 from app.models.user import User
 from app.auth.dependencies import get_current_user
+from app.schemas.auth import ForgotPasswordRequest,ResetPasswordRequest
+from pydantic import EmailStr
 router=APIRouter(
     prefix="/auth",
     tags=["Authentication"]
@@ -88,22 +90,71 @@ def logout(
         "message": "Logged out successfully"
     }
     
-@router.post("/change-password")
-def change_password(
-    request: ChangePasswordRequest,
-    current_user: User = Depends(get_current_user),
+@router.post("/forgot-password")
+def forgot_password(
+    request: ForgotPasswordRequest,
     db: Session = Depends(get_db),
 ):
-    try:
-        return AuthService.change_password(
-            db,
-            current_user,
-            request.old_password,
-            request.new_password,
-        )
-    except ValueError as e:
-        raise HTTPException(
-            status_code=400,
-            detail=str(e),
-        )
+    return AuthService.forgot_password(
+        db,
+        request.email,
+    )
+
+
+@router.post("/reset-password")
+def reset_password(
+    request: ResetPasswordRequest,
+    db: Session = Depends(get_db),
+):
+    return AuthService.reset_password(
+        db,
+        request.token,
+        request.password,
+    )
+
+@router.get("/verify-email")
+def verify_email(
+    token: str,
+    db: Session = Depends(get_db),
+):
+    AuthService.verify_email(
+        db,
+        token,
+    )
+
+    return {
+        "message": "Email verified successfully."
+    }
+
+@router.post("/resend-verification")
+def resend_verification(
+    email: EmailStr,
+    db: Session = Depends(get_db),
+):
+    return AuthService.resend_verification(
+        db,
+        email,
+    )
+
+@router.post("/forgot-password")
+def forgot_password(
+    request: ForgotPasswordRequest,
+    db: Session = Depends(get_db),
+):
+    return AuthService.forgot_password(
+        db,
+        request.email,
+    )
+
+
+@router.post("/reset-password")
+def reset_password(
+    request: ResetPasswordRequest,
+    db: Session = Depends(get_db),
+):
+    return AuthService.reset_password(
+        db,
+        request.token,
+        request.password,
+    )
 

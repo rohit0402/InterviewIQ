@@ -35,5 +35,13 @@ class Settings(BaseSettings):
         extra="ignore", 
     )
 
+    smtp_host: str
+    smtp_port: int
+    smtp_username: str
+    smtp_password: str
+    smtp_from_email: str
+
+    frontend_url: str
+
 
 settings = Settings()

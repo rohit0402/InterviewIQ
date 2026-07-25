@@ -4,7 +4,9 @@ from app.repositories.user_repository import UserRepository
 from app.schemas.user import UserCreate,TokenPair
 from app.core.security import hash_password,verify_password
 from app.core.jwt import create_access_token,create_refresh_token,decode_token
-
+from app.services.email_verification_service import EmailVerificationService
+from app.email.email_service import EmailService
+from app.services.password_reset_service import PasswordResetService
 class AuthService:
     @staticmethod
     def register(db:Session,user:UserCreate)->User:
@@ -16,13 +18,38 @@ class AuthService:
             email=user.email,
             hashed_password=hash_password(user.password)
         )
-        return UserRepository.create(db,user)
+        user = UserRepository.create(db, user)
+        token = EmailVerificationService.create_token(
+            db,
+            user,
+        )
+
+        EmailService.send_verification_email(
+            user.email,
+            token,
+        )
+        return user
+
+    @staticmethod
+    def verify_email(
+        db,
+        token: str,
+    ):
+        return EmailVerificationService.verify_token(
+            db,
+            token,
+        )
     
     @staticmethod
     def login(db:Session,email:str,password:str)->TokenPair:
         user=UserRepository.get_by_email(db,email)
         if not user:
             raise ValueError("Invalid email or password")
+        if not user.is_verified:
+            raise ValueError(
+                "Please verify your email before logging in."
+            )
+
         
         if not verify_password(password,user.hashed_password):
             raise ValueError("Invalid email or password")
@@ -120,3 +147,26 @@ class AuthService:
         return {
             "message": "Password changed successfully"
         }
+
+    @staticmethod
+    def forgot_password(
+        db: Session,
+        email: str,
+    ):
+        return PasswordResetService.forgot_password(
+            db,
+            email,
+        )
+
+
+    @staticmethod
+    def reset_password(
+        db: Session,
+        token: str,
+        new_password: str,
+    ):
+        return PasswordResetService.reset_password(
+            db,
+            token,
+            new_password,
+        )
