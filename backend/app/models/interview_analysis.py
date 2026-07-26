@@ -31,5 +31,4 @@ class InterviewAnalysis(Base):
 
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True),default=datetime.utcnow,onupdate=datetime.utcnow,)
 
-    interview = relationship("Interview",back_populates="analysis",
-    )
+    interview: Mapped["Interview"] = relationship("Interview",back_populates="analysis")        

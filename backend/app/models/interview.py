@@ -33,4 +33,4 @@ class Interview(Base):
     resume:Mapped["Resume"]=relationship("Resume",back_populates="interviews")
     analysis:Mapped["InterviewAnalysis"]=relationship("InterviewAnalysis",back_populates="interview",uselist=False,cascade="all,delete-orphan")
     questions:Mapped[list["InterviewQuestion"]]=relationship("InterviewQuestion",back_populates="interview",cascade="all,delete-orphan")
-    report:Mapped["InterviewReport"]=relationship("InterviewReport",back_populates="interview",uselist=False)
+    report: Mapped["InterviewReport"] = relationship("InterviewReport",back_populates="interview",uselist=False,cascade="all, delete-orphan",single_parent=True,)

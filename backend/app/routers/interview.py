@@ -3,10 +3,10 @@ from sqlalchemy.orm import Session
 
 from app.auth.dependencies import get_current_user
 from app.database.dependencies import get_db
-
+from app.services.interview_report_service import InterviewReportService
 from app.models.user import User
 from app.services.next_question_service import NextQuestionService
-from app.schemas.interview import ( InterviewCreate,InterviewResponse, InterviewReportResponse,)
+from app.schemas.interview import ( InterviewCreate,InterviewResponse, InterviewReportResponse,QuestionReportResponse,)
 from app.schemas.interview_question import InterviewQuestionResponse
 from app.services.interview_service import InterviewService
 from app.services.resume_service import ResumeService
@@ -15,8 +15,13 @@ from app.repositories.interview_question_repository import InterviewQuestionRepo
 from app.schemas.interview_answer import InterviewAnswerCreate,AnswerSubmittedResponse
 from app.repositories.interview_repository import InterviewRepository
 from app.services.finish_interview_service import FinishInterviewService
+from app.repositories.interview_report_repository import InterviewReportRepository
+from app.repositories.interview_question_insight_repository import InterviewQuestionInsightRepository
 
-router = APIRouter()
+router = APIRouter(
+    prefix="/interviews",
+    tags=["Interviews"],
+)
 
 
 @router.post("/",response_model=InterviewResponse,status_code=status.HTTP_201_CREATED,)
@@ -136,4 +141,97 @@ def finish_interview(interview_id: int,db: Session = Depends(get_db),current_use
     if interview.user_id != current_user.id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,detail="Access denied.",)
     
-    return FinishInterviewService.finish(db=db,interview=interview,resume_analysis=interview.resume.analysis,interview_analysis=interview.analysis,)
+    FinishInterviewService.finish(
+    db=db,
+    interview=interview,
+    resume_analysis=interview.resume.analysis,
+    interview_analysis=interview.analysis,
+)
+
+    return InterviewReportService.build_report_response(
+    db=db,
+    interview=interview,
+)
+
+
+@router.get(
+    "/{interview_id}/report",
+    response_model=InterviewReportResponse,
+)
+def get_interview_report(
+    interview_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    interview = InterviewRepository.get_by_id(
+        db,
+        interview_id,
+    )
+
+    if interview is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Interview not found.",
+        )
+
+    if interview.user_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access denied.",
+        )
+
+    report = InterviewReportRepository.get_by_interview_id(
+        db,
+        interview_id,
+    )
+
+    if report is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Interview report not found.",
+        )
+
+    question_reports = []
+
+    for question in interview.questions:
+
+        if question.answer is None:
+            continue
+
+        insight = (
+            InterviewQuestionInsightRepository
+            .get_by_question_id(
+                db,
+                question.id,
+            )
+        )
+
+        question_reports.append(
+            QuestionReportResponse(
+                question=question.question,
+                topic=question.topic,
+                difficulty=question.difficulty,
+
+                candidate_answer=question.answer.answer,
+
+                score=question.answer.score,
+                feedback=question.answer.feedback,
+
+                ideal_answer=(
+                    insight.ideal_answer
+                    if insight
+                    else ""
+                ),
+
+                key_learning_points=(
+                    insight.key_learning_points
+                    if insight
+                    else []
+                ),
+            )
+        )
+
+    return InterviewReportService.build_report_response(
+    db=db,
+    interview=interview,
+)                                                       

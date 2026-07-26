@@ -21,6 +21,8 @@ class InterviewRepository:
         return (db.query(Interview).filter(Interview.user_id == user_id).order_by(Interview.created_at.desc()).all())
 
     @staticmethod
-    def delete(db: Session, interview: Interview) -> None:
-        db.delete(interview)
+    def delete(db: Session, interview: Interview):
+        db.query(Interview).filter(
+            Interview.id == interview.id
+        ).delete(synchronize_session=False)
         db.commit()

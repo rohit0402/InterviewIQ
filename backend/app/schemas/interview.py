@@ -26,6 +26,21 @@ class InterviewResponse(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
+class QuestionReportResponse(BaseModel):
+    question: str
+    topic: str
+    difficulty: str
+
+    candidate_answer: str
+
+    score: float
+    feedback: str
+
+    ideal_answer: str
+
+    key_learning_points: list[str]
+
+
 class InterviewReportResponse(BaseModel):
     overall_score: float
     communication_score: float
@@ -40,5 +55,7 @@ class InterviewReportResponse(BaseModel):
     hiring_recommendation: str
 
     improvement_plan: list[str]
+
+    question_reports: list[QuestionReportResponse]
 
     model_config = ConfigDict(from_attributes=True)

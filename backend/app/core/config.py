@@ -44,4 +44,15 @@ class Settings(BaseSettings):
     frontend_url: str
 
 
+    REDIS_HOST: str = "localhost"
+    REDIS_PORT: int = 6379
+    REDIS_DB: int = 0
+    REDIS_PASSWORD: str | None = None
+
+    @property
+    def redis_url(self)->str:
+        if self.REDIS_PASSWORD:
+            return (f"redis://:{self.REDIS_PASSWORD}@" f"{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}")
+        return (f"redis://{self.REDIS_HOST}:" f"{self.REDIS_PORT}/{self.REDIS_DB}")
+
 settings = Settings()

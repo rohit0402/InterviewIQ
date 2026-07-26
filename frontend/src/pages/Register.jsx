@@ -21,7 +21,7 @@ function Register() {
   const onSubmit = async (data) => {
     try {
       await registerUser(data);
-
+      toast.info("Check your email for verification link");
       toast.success("Registration successful!");
 
       navigate("/");

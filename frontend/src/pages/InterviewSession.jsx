@@ -1,34 +1,60 @@
-import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-
+import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "react-toastify";
 import {
+    finishInterview,
+    nextQuestion,
     startInterview,
     submitAnswer,
-    nextQuestion,
-    finishInterview,
 } from "../api/interviewApi";
 
+import ProgressBar from "../components/interview/ProgressBar";
 import QuestionCard from "../components/interview/QuestionCard";
 import AnswerForm from "../components/interview/AnswerForm";
-import ProgressBar from "../components/interview/ProgressBar";
-import InterviewFeedback from "../components/interview/InterviewFeedback";
+import { set } from "react-hook-form";
+// import InterviewFeedback from "../components/interview/InterviewFeedback";
 
 function InterviewSession() {
     const { id } = useParams();
-
+    const navigate = useNavigate();
+    const [answerSubmitted, setAnswerSubmitted] = useState(false);
     const [question, setQuestion] = useState(null);
+    // const [feedback, setFeedback] = useState(null);
+
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
-    const [feedback, setFeedback] = useState(null);
+    const [nextLoading, setNextLoading] = useState(false);
+    const handleFinishInterview = async () => {
+        try {
+            setNextLoading(true);
 
+            const report = await finishInterview(id);
+
+            navigate(
+                `/interviews/${id}/report`,
+                {
+                    state: report,
+                }
+            );
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setNextLoading(false);
+        }
+    };
     useEffect(() => {
         loadFirstQuestion();
     }, []);
 
     const loadFirstQuestion = async () => {
         try {
+            setLoading(true);
+
             const data = await startInterview(id);
+
             setQuestion(data);
+        } catch (error) {
+            console.error(error);
         } finally {
             setLoading(false);
         }
@@ -38,38 +64,58 @@ function InterviewSession() {
         try {
             setSubmitting(true);
 
-            const result = await submitAnswer(
+            const response = await submitAnswer(
                 question.id,
                 answer
             );
 
-            setFeedback(result);
+            toast.success(response.message);
 
+            setAnswerSubmitted(true);
+        } catch (error) {
+            console.error(error);
         } finally {
             setSubmitting(false);
         }
     };
 
-    const handleNext = async () => {
+    const handleNextQuestion = async () => {
         try {
+            setNextLoading(true);
+
             const next = await nextQuestion(id);
 
             setQuestion(next);
-            setFeedback(null);
+            // setFeedback(null);
+        } catch (error) {
+            try {
+                const report = await finishInterview(id);
 
-        } catch {
-            await finishInterview(id);
-
-            // navigate to report
+                navigate(
+                    `/interviews/${id}/report`,
+                    {
+                        state: report,
+                    }
+                );
+            } catch (finishError) {
+                console.error(finishError);
+            }
+        } finally {
+            setNextLoading(false);
+            setAnswerSubmitted(false);
         }
     };
 
     if (loading) {
-        return <div>Loading...</div>;
+        return (
+            <div className="flex justify-center py-20">
+                Preparing Interview...
+            </div>
+        );
     }
 
     return (
-        <div className="space-y-6">
+        <div className="max-w-5xl mx-auto py-8 space-y-6">
 
             <ProgressBar
                 sequence={question.sequence}
@@ -79,18 +125,32 @@ function InterviewSession() {
                 question={question}
             />
 
-            <AnswerForm
-                loading={submitting}
-                onSubmit={handleSubmit}
-            />
-
-            {feedback && (
-                <InterviewFeedback
-                    feedback={feedback}
-                    onNext={handleNext}
+            {!answerSubmitted && (
+                <AnswerForm
+                    loading={submitting}
+                    onSubmit={handleSubmit}
                 />
             )}
+            <div className="flex justify-end gap-4">
+                <button
+                    onClick={handleFinishInterview}
+                    disabled={nextLoading}
+                    className="px-6 py-2 rounded-lg border border-gray-300"
+                >
+                    Finish Interview
+                </button>
 
+                <button
+                    onClick={handleNextQuestion}
+                    disabled={!answerSubmitted || nextLoading}
+                    className={`px-6 py-2 rounded-lg text-white ${answerSubmitted
+                            ? "bg-indigo-600 hover:bg-indigo-700"
+                            : "bg-gray-400 cursor-not-allowed"
+                        }`}
+                >
+                    Next Question
+                </button>
+            </div>
         </div>
     );
 }

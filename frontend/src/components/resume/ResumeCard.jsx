@@ -68,7 +68,7 @@ function ResumeCard({
             onClick={() =>
               navigate("/resume/analysis")
             }
-            className="flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-white"
+            className="flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-white hover:bg-green-700 transition"
           >
             <Eye size={18} />
 
@@ -78,7 +78,7 @@ function ResumeCard({
 
         <button
           onClick={handleDelete}
-          className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-white"
+          className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-white hover:bg-red-700 transition"
         >
           <Trash2 size={18} />
 

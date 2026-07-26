@@ -1,32 +1,37 @@
 import { useEffect, useState } from "react";
-import { refreshToken } from "../utils/auth";
+import { useDispatch } from "react-redux";
+import { refresh, getCurrentUser } from "../api/authApi";
+import { setCredentials } from "../features/auth/authSlice";
 
-function AuthInitializer({ children }) {
-    const [loading, setLoading] = useState(true);
+export default function AuthInitializer({ children }) {
+  const dispatch = useDispatch();
+  const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const initialize = async () => {
-            try {
-                await refreshToken();
-            }
-            catch {
+  useEffect(() => {
+    async function restoreSession() {
+      try {
+        const tokenResponse = await refresh();
+        const user = await getCurrentUser();
 
-            } finally {
-                setLoading(false);
-            }
-        };
-        initialize();
-    }
-        , []);
-
-    if (loading) {
-        return (
-            <div className="flex h-screen items-center justify-center">
-                Loading...
-            </div>
+        dispatch(
+          setCredentials({
+            accessToken: tokenResponse.access_token,
+            user,
+          })
         );
+      } catch {
+        // User is not logged in or refresh token is invalid
+      } finally {
+        setLoading(false);
+      }
     }
-    return children;
-}
 
-export default AuthInitializer;
+    restoreSession();
+  }, [dispatch]);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  return children;
+}

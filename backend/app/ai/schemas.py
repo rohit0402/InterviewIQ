@@ -65,15 +65,24 @@ class EvaluateAnswerResponse(BaseModel):
     feedback: str
     reasoning: str
 
+class QuestionInsight(BaseModel):
+    ideal_answer: str
+    key_learning_points: list[str]
+
 
 class FinalInterviewReport(BaseModel):
     overall_score: float
     communication_score: float
     technical_score: float
     problem_solving_score: float
+
     strengths: list[str]
     weaknesses: list[str]
+
     summary: str
+
     hiring_recommendation: str
+
     improvement_plan: list[str]
-    
+
+    question_insights: list[QuestionInsight]

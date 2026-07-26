@@ -70,3 +70,16 @@ class InterviewService:
         db.commit()
         db.refresh(interview)
         return question
+
+    @staticmethod
+    def get_user_interviews(
+        db: Session,
+        current_user: User,
+    ) -> list[Interview]:
+        return InterviewRepository.get_by_user(
+            db=db,
+            user_id=current_user.id,
+        )
+    @staticmethod
+    def delete_interview(db: Session, interview: Interview):
+        InterviewRepository.delete(db, interview)

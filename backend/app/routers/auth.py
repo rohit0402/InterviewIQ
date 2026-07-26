@@ -136,25 +136,5 @@ def resend_verification(
         email,
     )
 
-@router.post("/forgot-password")
-def forgot_password(
-    request: ForgotPasswordRequest,
-    db: Session = Depends(get_db),
-):
-    return AuthService.forgot_password(
-        db,
-        request.email,
-    )
 
-
-@router.post("/reset-password")
-def reset_password(
-    request: ResetPasswordRequest,
-    db: Session = Depends(get_db),
-):
-    return AuthService.reset_password(
-        db,
-        request.token,
-        request.password,
-    )
 

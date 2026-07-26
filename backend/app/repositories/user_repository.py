@@ -40,3 +40,9 @@ class UserRepository:
         print("Result:", result)
 
         return result
+
+    @staticmethod
+    def update(db: Session, user: User):
+        db.commit()
+        db.refresh(user)
+        return user
