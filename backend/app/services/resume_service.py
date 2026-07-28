@@ -7,11 +7,10 @@ from app.models.user import User
 from app.repositories.resume_repository import ResumeRepository
 from app.core.enum import ResumeStatus
 from app.models.resume import Resume
-from app.services.resume_analysis_service import ResumeAnalysisService
 from app.repositories.resume_analysis_repository import (
     ResumeAnalysisRepository,
 )
-
+from app.tasks.resume_tasks import process_resume_task
 
 class ResumeService:
     @staticmethod
@@ -50,15 +49,12 @@ class ResumeService:
                 existing_resume.file_path = file_path
                 existing_resume.file_size = file_size
                 existing_resume.mime_type = file.content_type
-                existing_resume.status = ResumeStatus.UPLOADED
-
-                existing_resume = ResumeRepository.update(db,existing_resume,)
+                ResumeRepository.update_status(db=db,resume=existing_resume,status=ResumeStatus.PENDING,)
 
                 try:
-                    ResumeAnalysisService.analyze_resume(db,existing_resume,)
+                    process_resume_task.delay(existing_resume.id)
                 except Exception:
-                    existing_resume.status = ResumeStatus.FAILED
-                    ResumeRepository.update(db, existing_resume)
+                    ResumeRepository.update_status(db=db,resume=existing_resume, status=ResumeStatus.FAILED,)
                     raise
 
                 return ResumeService._to_resume_response(existing_resume)
@@ -70,16 +66,16 @@ class ResumeService:
                 file_path=file_path,
                 file_size=file_size,
                 mime_type=file.content_type,
-                status=ResumeStatus.UPLOADED,
+                status=ResumeStatus.PENDING,
             )
 
             resume = ResumeRepository.create(db,resume, )
 
             try:
-                ResumeAnalysisService.analyze_resume(db,resume,)
+                process_resume_task.delay(resume.id,)
             except Exception:
-                resume.status = ResumeStatus.FAILED
-                ResumeRepository.update(db, resume)
+                
+                ResumeRepository.update(db=db,resume=resume,status=ResumeStatus.FAILED)
                 raise
 
             return ResumeService._to_resume_response(resume)

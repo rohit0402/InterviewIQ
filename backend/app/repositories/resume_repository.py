@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 from app.models.resume import Resume
+from app.core.enum import ResumeStatus
 
 class ResumeRepository:
     @staticmethod
@@ -27,5 +28,16 @@ class ResumeRepository:
         db.commit()
 
     @staticmethod
-    def get_by_id(db:Session,resume_id:int):
+    def get_by_id(db:Session,resume_id:int)->Resume | None:
         return db.query(Resume).filter(Resume.id==resume_id).first()
+
+    @staticmethod
+    def update_status(
+        db: Session,
+        resume: Resume,
+        status: ResumeStatus,
+    ) -> Resume:
+        resume.status = status
+        db.commit()
+        db.refresh(resume)
+        return resume

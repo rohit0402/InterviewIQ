@@ -12,6 +12,7 @@ from app.repositories.password_reset_repository import (
     PasswordResetRepository,
 )
 from app.repositories.user_repository import UserRepository
+from app.tasks.email_tasks import send_password_reset_email_task
 
 
 class PasswordResetService:
@@ -70,7 +71,7 @@ class PasswordResetService:
                 user,
             )
 
-            EmailService.send_password_reset_email(
+            send_password_reset_email_task.delay(
                 user.email,
                 token,
             )

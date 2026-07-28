@@ -11,7 +11,7 @@ class InterviewReportRepository:
         report: InterviewReport,
     ) -> InterviewReport:
         db.add(report)
-        db.commit()
+        db.flush()
         db.refresh(report)
         return report
 
@@ -25,3 +25,12 @@ class InterviewReportRepository:
             .filter(InterviewReport.interview_id == interview_id)
             .first()
         )
+
+    @staticmethod
+    def update(
+        db: Session,
+        report: InterviewReport,
+    ):
+        db.flush()
+        db.refresh(report)
+        return report

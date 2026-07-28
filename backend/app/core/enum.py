@@ -5,15 +5,18 @@ class UserRole(Enum):
     COMPANY="company"
     CANDIDATE="candidate"
 
-class ResumeStatus(Enum):
-    UPLOADED="uploaded"
-    PROCESSING="processing"
-    COMPLETED="completed"
-    FAILED="failed"
+class ResumeStatus(str, Enum):
+    PENDING = "PENDING"
+    PROCESSING = "PROCESSING"
+    COMPLETED = "COMPLETED"
+    FAILED = "FAILED"
 
-class InterviewStatus(Enum):
-    CREATED="CREATED"
-    QUESTIONS_GENERATED="QUESTIONS_GENERATED"
-    IN_PROGRESS="IN_PROGRESS"
-    COMPLETED="COMPLETED"
-    FAILED="FAILED"
+class InterviewStatus(str, Enum):
+    PENDING = "PENDING"
+    ANALYZING = "ANALYZING"
+    READY = "READY"
+    IN_PROGRESS = "IN_PROGRESS"
+    FINISHED = "FINISHED"
+    REPORT_GENERATING = "REPORT_GENERATING"
+    REPORT_READY = "REPORT_READY"
+    FAILED = "FAILED"

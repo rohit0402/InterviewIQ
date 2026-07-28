@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-
+from app.core.enum import InterviewStatus
 from app.auth.dependencies import get_current_user
 from app.database.dependencies import get_db
 from app.services.interview_report_service import InterviewReportService
@@ -24,7 +24,7 @@ router = APIRouter(
 )
 
 
-@router.post("/",response_model=InterviewResponse,status_code=status.HTTP_201_CREATED,)
+@router.post("/",response_model=InterviewResponse,status_code=status.HTTP_202_ACCEPTED,)
 def create_interview(interview_data: InterviewCreate,db: Session = Depends(get_db),current_user: User = Depends(get_current_user),):
     resume = ResumeService.get_resume(db=db,current_user=current_user,)
 
@@ -131,7 +131,7 @@ def next_question(
 
 @router.post(
     "/{interview_id}/finish",
-    response_model=InterviewReportResponse,
+    status_code=status.HTTP_202_ACCEPTED,
 )
 def finish_interview(interview_id: int,db: Session = Depends(get_db),current_user = Depends(get_current_user),):
     interview=InterviewRepository.get_by_id(db,interview_id,)
@@ -142,16 +142,13 @@ def finish_interview(interview_id: int,db: Session = Depends(get_db),current_use
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,detail="Access denied.",)
     
     FinishInterviewService.finish(
-    db=db,
-    interview=interview,
-    resume_analysis=interview.resume.analysis,
-    interview_analysis=interview.analysis,
-)
+        db=db,
+        interview=interview,
+    )
 
-    return InterviewReportService.build_report_response(
-    db=db,
-    interview=interview,
-)
+    return {
+        "message": "Interview finished successfully. Report generation started."
+    }
 
 
 @router.get(
@@ -164,7 +161,7 @@ def get_interview_report(
     current_user: User = Depends(get_current_user),
 ):
     interview = InterviewRepository.get_by_id(
-        db,
+        db, 
         interview_id,
     )
 
@@ -178,6 +175,18 @@ def get_interview_report(
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Access denied.",
+        )
+
+    if interview.status == InterviewStatus.REPORT_GENERATING:
+        raise HTTPException(
+            status_code=status.HTTP_202_ACCEPTED,
+            detail="Report is still being generated.",
+        )
+
+    if interview.status == InterviewStatus.FAILED:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Report generation failed.",
         )
 
     report = InterviewReportRepository.get_by_interview_id(
@@ -234,4 +243,22 @@ def get_interview_report(
     return InterviewReportService.build_report_response(
     db=db,
     interview=interview,
-)                                                       
+)                                  
+
+@router.get("/{interview_id}/status")
+def get_interview_status(
+    interview_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    interview = InterviewService.get_interview(db, interview_id)
+
+    if interview.user_id != current_user.id:
+        raise HTTPException(
+            status_code=403,
+            detail="Access denied.",
+        )
+
+    return {
+        "status": interview.status,
+    }

@@ -7,7 +7,7 @@ from app.models.email_verification_token import (
 from app.repositories.email_verification_repository import (
     EmailVerificationRepository,
 )
-from app.email.email_service import EmailService
+from app.tasks.email_tasks import send_verification_email_task
 from app.repositories.user_repository import UserRepository
 
 
@@ -109,11 +109,8 @@ class EmailVerificationService:
             user,
         )
 
-        EmailService.send_verification_email(
-            user.email,
-            token,
-        )
-
+        send_verification_email_task.delay(user.email,token,)
+           
         return {
             "message":
             "Verification email sent."

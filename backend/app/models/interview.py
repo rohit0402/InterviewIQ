@@ -25,7 +25,7 @@ class Interview(Base):
     job_description:Mapped[str]=mapped_column(Text,nullable=False)
     required_skills:Mapped[list[str]]=mapped_column(JSONB,nullable=False,default=list)
     match_score:Mapped[float | None]=mapped_column(Float,nullable=True)
-    status:Mapped[InterviewStatus]=mapped_column(default=InterviewStatus.CREATED,nullable=False)
+    status:Mapped[InterviewStatus]=mapped_column(default=InterviewStatus.PENDING,nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime,default=datetime.utcnow,)
     updated_at: Mapped[datetime] = mapped_column(DateTime,default=datetime.utcnow,onupdate=datetime.utcnow,)
 

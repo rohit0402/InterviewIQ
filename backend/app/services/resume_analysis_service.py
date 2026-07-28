@@ -12,16 +12,27 @@ from app.services.pdf_service import PdfService
 
 
 class ResumeAnalysisService:
-
     @staticmethod
-    def analyze_resume(db: Session,resume: Resume,) -> ResumeAnalysis:
-        resume.status = ResumeStatus.PROCESSING
-        ResumeRepository.update(db, resume)
-        text = ResumeAnalysisService.extract_resume_text(db,resume,)
-        result = ResumeAnalysisService.run_ai_analysis(text,)
-        analysis = ResumeAnalysisService.save_analysis(db,resume,result,)
-        resume.status = ResumeStatus.COMPLETED
-        ResumeRepository.update(db, resume)
+    def analyze_resume(
+        db: Session,
+        resume: Resume,
+    ) -> ResumeAnalysis:
+
+        text = ResumeAnalysisService.extract_resume_text(
+            db=db,
+            resume=resume,
+        )
+
+        result = ResumeAnalysisService.run_ai_analysis(
+            text,
+        )
+
+        analysis = ResumeAnalysisService.save_analysis(
+            db=db,
+            resume=resume,
+            result=result,
+        )
+
         return analysis
     
     @staticmethod

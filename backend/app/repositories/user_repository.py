@@ -31,13 +31,11 @@ class UserRepository:
     
     @staticmethod
     def get_by_refresh_token(db: Session, refresh_token: str) -> User | None:
-        print("Searching for:", refresh_token)
 
         stmt = select(User).where(User.refresh_token == refresh_token)
 
         result = db.scalar(stmt)
 
-        print("Result:", result)
 
         return result
 

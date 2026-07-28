@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 
 from app.models.interview import Interview
-
+from app.core.enum import InterviewStatus
 
 class InterviewRepository:
 
@@ -26,3 +26,14 @@ class InterviewRepository:
             Interview.id == interview.id
         ).delete(synchronize_session=False)
         db.commit()
+
+    @staticmethod
+    def update_status(
+        db: Session,
+        interview: Interview,
+        status: InterviewStatus,
+    ) -> Interview:
+        interview.status = status
+        db.commit()
+        db.refresh(interview)
+        return interview

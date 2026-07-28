@@ -6,6 +6,13 @@ celery_app = Celery(
     "interviewiq",
     broker=settings.redis_url,
     backend=settings.redis_url,
+    include=[
+        "app.tasks.email_tasks",
+        "app.tasks.resume_tasks",
+        "app.tasks.ai_tasks",
+        "app.tasks.interview_tasks",
+        "app.tasks.report_tasks",
+    ],
 )
 
 celery_app.conf.update(
@@ -14,13 +21,6 @@ celery_app.conf.update(
     accept_content=["json"],
     timezone="Asia/Kolkata",
     enable_utc=False,
-
-    # Recommended settings
     task_track_started=True,
     result_expires=3600,
-)
-
-# Auto-discover tasks
-celery_app.autodiscover_tasks(
-    ["app.tasks"]
 )

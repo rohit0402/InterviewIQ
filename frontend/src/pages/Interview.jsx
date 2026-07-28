@@ -48,8 +48,6 @@ function Interviews() {
 
     const interview = await createInterview(formData);
 
-    console.log(interview);
-
     navigate(`/interviews/${interview.id}/session`);
   } catch (error) {
     console.error(error);

@@ -15,3 +15,12 @@ class InterviewAnalysisRepository:
     @staticmethod
     def get_by_interview_id(db: Session, interview_id: int):
         return (db.query(InterviewAnalysis).filter( InterviewAnalysis.interview_id == interview_id).first())
+
+    @staticmethod
+    def update(
+        db: Session,
+        analysis: InterviewAnalysis,
+    ):
+        db.commit()
+        db.refresh(analysis)
+        return analysis

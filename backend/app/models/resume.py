@@ -20,7 +20,7 @@ class Resume(Base):
     file_size: Mapped[int]=mapped_column(Integer(),nullable=False)
     file_path: Mapped[str]=mapped_column(String(500),nullable=False)
     mime_type: Mapped[str]=mapped_column(String(255),nullable=False)
-    status: Mapped[str]=mapped_column(Enum(ResumeStatus),default=ResumeStatus.UPLOADED,nullable=False)
+    status: Mapped[str]=mapped_column(Enum(ResumeStatus),default=ResumeStatus.PENDING,nullable=False)
     created_at: Mapped[datetime]=mapped_column(DateTime(timezone=True),server_default=func.now())
     updated_at: Mapped[datetime]=mapped_column(DateTime(timezone=True),server_default=func.now(),onupdate=func.now())
     owner:Mapped["User"]=relationship("User",back_populates="resume")

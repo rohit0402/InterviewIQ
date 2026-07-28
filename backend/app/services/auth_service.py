@@ -5,8 +5,8 @@ from app.schemas.user import UserCreate,TokenPair
 from app.core.security import hash_password,verify_password
 from app.core.jwt import create_access_token,create_refresh_token,decode_token
 from app.services.email_verification_service import EmailVerificationService
-from app.email.email_service import EmailService
 from app.services.password_reset_service import PasswordResetService
+from app.tasks.email_tasks import send_verification_email_task
 class AuthService:
     @staticmethod
     def register(db:Session,user:UserCreate)->User:
@@ -24,10 +24,7 @@ class AuthService:
             user,
         )
 
-        EmailService.send_verification_email(
-            user.email,
-            token,
-        )
+        send_verification_email_task.delay(user.email,token,)
         return user
 
     @staticmethod
@@ -93,11 +90,9 @@ class AuthService:
 
         if payload.get("type") != "refresh":
             raise ValueError("Invalid token type")
-        print("Incoming refresh token:", refresh_token)
 
         user = UserRepository.get_by_refresh_token(db, refresh_token)
 
-        print("User found:", user)
         access_token = create_access_token(
             {
                 "sub": str(user.id),

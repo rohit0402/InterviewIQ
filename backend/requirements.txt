@@ -68,3 +68,8 @@ uvicorn==0.51.0
 vine==5.1.0
 wcwidth==0.8.2
 websockets==16.1.1
+pytest==8.4.2
+pytest-cov==7.0.0
+pytest-mock==3.15.0
+factory-boy==3.3.3
+faker==37.8.0

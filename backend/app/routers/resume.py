@@ -13,7 +13,7 @@ router=APIRouter(
     tags=["Resumes"]
 )
 
-@router.post("/upload",response_model=ResumeResponse)
+@router.post("/upload",response_model=ResumeResponse,status_code=status.HTTP_202_ACCEPTED)
 def upload_resume(file:UploadFile=File(...),current_user:User=Depends(get_current_user),db:Session=Depends(get_db)):
     return ResumeService.upload_resume(db=db,file=file,current_user=current_user)
 
