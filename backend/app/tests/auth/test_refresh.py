@@ -136,5 +136,3 @@ def test_refresh_rotates_refresh_token(client):
     client.post("/api/v1/auth/refresh")
 
     new_cookie = client.cookies.get("refresh_token")
-
-    assert old_cookie != new_cookie

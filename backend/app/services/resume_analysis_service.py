@@ -39,7 +39,7 @@ class ResumeAnalysisService:
     def extract_resume_text(db: Session,resume: Resume,) -> str:
         text = PdfService.extract_text(resume.file_path,)
         resume.raw_text = text
-        ResumeRepository.update(db, resume)
+        ResumeRepository.update_status(db, resume)
         return text
     
     @staticmethod

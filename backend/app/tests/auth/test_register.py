@@ -24,6 +24,7 @@ def test_register_success(mock_delay,client):
 def test_register_duplicate_email(mock_delay,client):
     user = unique_user()
     register(client, user)
+    mock_delay.reset_mock()
     response = register(client, user)
     assert response.status_code == 400
     assert response.json()["detail"] == "User already exists"

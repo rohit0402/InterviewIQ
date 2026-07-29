@@ -48,7 +48,10 @@ def login(
         }
 
     except ValueError as e:
-        raise HTTPException(400, str(e))
+        raise HTTPException(
+        status_code=401,
+        detail=str(e),
+    )
     
 @router.post("/refresh", response_model=Token)
 def refresh_token(
@@ -81,8 +84,11 @@ def logout(
 ):
     refresh_token = request.cookies.get("refresh_token")
 
-    if refresh_token:
-        AuthService.logout(db, refresh_token)
+    try:
+        if refresh_token:
+            AuthService.logout(db, refresh_token)
+    except ValueError as e:
+        raise HTTPException(401, detail=str(e))
 
     response.delete_cookie("refresh_token")
 
@@ -106,11 +112,17 @@ def reset_password(
     request: ResetPasswordRequest,
     db: Session = Depends(get_db),
 ):
-    return AuthService.reset_password(
-        db,
-        request.token,
-        request.password,
-    )
+    try:
+        return AuthService.reset_password(
+            db,
+            request.token,
+            request.password,
+        )
+    except ValueError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=str(e),
+        )
 
 @router.get("/verify-email")
 def verify_email(

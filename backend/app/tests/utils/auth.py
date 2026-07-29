@@ -1,7 +1,7 @@
 import uuid
 
 from app.core.config import settings
-
+from app.tests.utils.db import verify_user
 API = settings.api_v1_prefix
 
 
@@ -38,3 +38,17 @@ def refresh(client):
 
 def logout(client):
     return client.post(f"{API}/auth/logout")
+
+def authenticated_user(client):
+    user = unique_user()
+
+    register(client, user)
+    verify_user(user["email"])
+
+    token = login(
+        client,
+        user["email"],
+        user["password"],
+    ).json()["access_token"]
+
+    return user, token

@@ -83,7 +83,7 @@ class InterviewService:
         if interview is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="Interview not found",
+                detail="Interview not found.",
             )
 
         return interview
@@ -98,6 +98,7 @@ class InterviewService:
             interview=interview,
             status=InterviewStatus.IN_PROGRESS,
         )
+        print("Router status:", interview.status)
 
         return question
 

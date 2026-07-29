@@ -27,21 +27,32 @@ class ResumeService:
 
 
     @staticmethod
-    def upload_resume(db: Session,file: UploadFile,current_user: User,) -> ResumeResponse:
+    def upload_resume(
+        db: Session,
+        file: UploadFile,
+        current_user: User,
+    ) -> ResumeResponse:
 
         if file.content_type != "application/pdf":
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail="Only PDF files are allowed",)
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Only PDF files are allowed",
+            )
 
-        stored_filename, file_path = FileStorage.save_resume(file)
+        file_path = None
 
         try:
-            existing_resume = ResumeRepository.get_by_user_id(db,current_user.id,)
+            stored_filename, file_path = FileStorage.save_resume(file)
+
+            existing_resume = ResumeRepository.get_by_user_id(
+                db,
+                current_user.id,
+            )
 
             file_size = Path(file_path).stat().st_size
 
             if existing_resume:
 
-                # Delete old PDF
                 FileStorage.delete_resume(existing_resume.file_path)
 
                 existing_resume.original_filename = file.filename
@@ -49,13 +60,28 @@ class ResumeService:
                 existing_resume.file_path = file_path
                 existing_resume.file_size = file_size
                 existing_resume.mime_type = file.content_type
-                ResumeRepository.update_status(db=db,resume=existing_resume,status=ResumeStatus.PENDING,)
+
+                ResumeRepository.update_status(
+                    db=db,
+                    resume=existing_resume,
+                    status=ResumeStatus.PENDING,
+                )
 
                 try:
                     process_resume_task.delay(existing_resume.id)
                 except Exception:
-                    ResumeRepository.update_status(db=db,resume=existing_resume, status=ResumeStatus.FAILED,)
-                    raise
+                    ResumeRepository.update_status(
+                        db=db,
+                        resume=existing_resume,
+                        status=ResumeStatus.FAILED,
+                    )
+
+                    FileStorage.delete_resume(file_path)
+
+                    raise HTTPException(
+                        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                        detail="Failed to queue resume processing",
+                    )
 
                 return ResumeService._to_resume_response(existing_resume)
 
@@ -69,20 +95,40 @@ class ResumeService:
                 status=ResumeStatus.PENDING,
             )
 
-            resume = ResumeRepository.create(db,resume, )
+            resume = ResumeRepository.create(db, resume)
 
             try:
-                process_resume_task.delay(resume.id,)
+                process_resume_task.delay(resume.id)
+
             except Exception:
-                
-                ResumeRepository.update(db=db,resume=resume,status=ResumeStatus.FAILED)
-                raise
+
+                ResumeRepository.update_status(
+                    db=db,
+                    resume=resume,
+                    status=ResumeStatus.FAILED,
+                )
+
+                FileStorage.delete_resume(file_path)
+
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail="Failed to queue resume processing",
+                )
 
             return ResumeService._to_resume_response(resume)
 
-        except Exception:
-            FileStorage.delete_resume(file_path)
+        except HTTPException:
             raise
+
+        except Exception:
+
+            if file_path:
+                FileStorage.delete_resume(file_path)
+
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to upload resume",
+            )
 
     @staticmethod
     def get_resume(db: Session, current_user:User) -> ResumeResponse:

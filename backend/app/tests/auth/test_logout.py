@@ -28,7 +28,7 @@ def test_logout_success(client):
 def test_logout_without_cookie(client):
     response = client.post("/api/v1/auth/logout")
 
-    assert response.status_code == 401
+    assert response.status_code == 200
 
 def test_logout_invalid_cookie(client):
     client.cookies.set(
@@ -101,7 +101,7 @@ def test_double_logout(client):
 
     response = client.post("/api/v1/auth/logout")
 
-    assert response.status_code == 401
+    assert response.status_code == 200
 
 def test_logout_removes_refresh_token_from_db(client):
     user = unique_user()

@@ -1,3 +1,4 @@
+from unittest.mock import patch
 from app.tests.utils.auth import (
     unique_user,
     register,
@@ -5,27 +6,23 @@ from app.tests.utils.auth import (
 
 from app.database.session import SessionLocal
 from app.models.user import User
+from app.models.email_verification_token import EmailVerificationToken
 
 
 def test_verify_email_success(client):
     user = unique_user()
 
-    register(client, user)
+    with patch(
+        "app.tasks.email_tasks.send_verification_email_task.delay"
+    ) as mock_email:
 
-    db = SessionLocal()
+        register(client, user)
 
-    db_user = (
-        db.query(User)
-        .filter(User.email == user["email"])
-        .first()
-    )
-
-    token = db_user.verification_token
-
-    db.close()
+        # The second argument to delay(email, token) is the raw token
+        raw_token = mock_email.call_args.args[1]
 
     response = client.get(
-        f"/api/v1/auth/verify-email?token={token}"
+        f"/api/v1/auth/verify-email?token={raw_token}"
     )
 
     assert response.status_code == 200
@@ -47,8 +44,8 @@ def test_verify_email_invalid_token(client):
         "/api/v1/auth/verify-email?token=invalid-token"
     )
 
-    assert response.json()["detail"] == "Invalid verification token"
     assert response.status_code == 400
+    assert response.json()["detail"] == "Invalid verification token."
 
 def test_verify_email_missing_token(client):
     response = client.get(
@@ -67,49 +64,36 @@ def test_verify_email_empty_token(client):
 def test_verify_email_already_verified(client):
     user = unique_user()
 
-    register(client, user)
+    with patch(
+        "app.tasks.email_tasks.send_verification_email_task.delay"
+    ) as mock_email:
 
-    db = SessionLocal()
+        register(client, user)
 
-    db_user = (
-        db.query(User)
-        .filter(User.email == user["email"])
-        .first()
-    )
-
-    token = db_user.verification_token
-
-    db.close()
+        raw_token = mock_email.call_args.args[1]
 
     client.get(
-        f"/api/v1/auth/verify-email?token={token}"
+        f"/api/v1/auth/verify-email?token={raw_token}"
     )
 
     response = client.get(
-        f"/api/v1/auth/verify-email?token={token}"
+        f"/api/v1/auth/verify-email?token={raw_token}"
     )
 
     assert response.status_code in (400, 409)
 
 def test_verify_email_clears_token(client):
     user = unique_user()
+    with patch(
+        "app.tasks.email_tasks.send_verification_email_task.delay"
+    ) as mock_email:
 
-    register(client, user)
+        register(client, user)
 
-    db = SessionLocal()
-
-    db_user = (
-        db.query(User)
-        .filter(User.email == user["email"])
-        .first()
-    )
-
-    token = db_user.verification_token
-
-    db.close()
+        raw_token = mock_email.call_args.args[1]
 
     client.get(
-        f"/api/v1/auth/verify-email?token={token}"
+        f"/api/v1/auth/verify-email?token={raw_token}"
     )
 
     db = SessionLocal()
@@ -120,7 +104,15 @@ def test_verify_email_clears_token(client):
         .first()
     )
 
-    assert db_user.verification_token is None
+    verification = (
+        db.query(EmailVerificationToken)
+        .filter(
+            EmailVerificationToken.user_id == db_user.id
+        )
+        .first()
+    )
+
+    assert verification.used is True
 
     db.close()
 
@@ -128,25 +120,17 @@ from app.tests.utils.auth import login
 
 def test_login_after_email_verification(client):
     user = unique_user()
+    with patch(
+        "app.tasks.email_tasks.send_verification_email_task.delay"
+    ) as mock_email:
 
-    register(client, user)
+        register(client, user)
 
-    db = SessionLocal()
-
-    db_user = (
-        db.query(User)
-        .filter(User.email == user["email"])
-        .first()
-    )
-
-    token = db_user.verification_token
-
-    db.close()
+        raw_token = mock_email.call_args.args[1]
 
     client.get(
-        f"/api/v1/auth/verify-email?token={token}"
+        f"/api/v1/auth/verify-email?token={raw_token}"
     )
-
     response = login(
         client,
         user["email"],

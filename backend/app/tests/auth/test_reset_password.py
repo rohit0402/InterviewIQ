@@ -3,7 +3,9 @@ from app.tests.utils.auth import (
     register,
     login,
 )
-
+from app.email.token_service import TokenService
+from unittest.mock import patch
+from app.models.password_reset_token import PasswordResetToken
 from app.database.session import SessionLocal
 from app.models.user import User
 
@@ -22,24 +24,26 @@ def test_reset_password_success(client):
 
     db.commit()
 
-    client.post(
-        "/api/v1/auth/forgot-password",
-        json={
-            "email": user["email"]
-        },
-    )
+    with patch(
+        "app.tasks.email_tasks.send_password_reset_email_task.delay"
+    ) as mock_email:
 
-    db.refresh(db_user)
+        client.post(
+            "/api/v1/auth/forgot-password",
+            json={
+                "email": user["email"]
+            },
+        )
 
-    token = db_user.reset_password_token
+        raw_token = mock_email.call_args.args[1]
 
     db.close()
 
     response = client.post(
         "/api/v1/auth/reset-password",
         json={
-            "token": token,
-            "new_password": "NewPassword123!"
+            "token": raw_token,
+            "password": "NewPassword123!"
         },
     )
 
@@ -60,24 +64,26 @@ def test_login_after_password_reset(client):
 
     db.commit()
 
-    client.post(
-        "/api/v1/auth/forgot-password",
-        json={
-            "email": user["email"]
-        },
-    )
+    with patch(
+        "app.tasks.email_tasks.send_password_reset_email_task.delay"
+    ) as mock_email:
 
-    db.refresh(db_user)
+        client.post(
+            "/api/v1/auth/forgot-password",
+            json={
+                "email": user["email"]
+            },
+        )
 
-    token = db_user.reset_password_token
+        raw_token = mock_email.call_args.args[1]
 
     db.close()
 
     client.post(
         "/api/v1/auth/reset-password",
         json={
-            "token": token,
-            "new_password": "NewPassword123!"
+            "token": raw_token,
+            "password": "NewPassword123!"
         },
     )
 
@@ -104,24 +110,26 @@ def test_old_password_fails_after_reset(client):
 
     db.commit()
 
-    client.post(
-        "/api/v1/auth/forgot-password",
-        json={
-            "email": user["email"]
-        },
-    )
+    with patch(
+        "app.tasks.email_tasks.send_password_reset_email_task.delay"
+    ) as mock_email:
 
-    db.refresh(db_user)
+        client.post(
+            "/api/v1/auth/forgot-password",
+            json={
+                "email": user["email"]
+            },
+        )
 
-    token = db_user.reset_password_token
+        raw_token = mock_email.call_args.args[1]
 
     db.close()
 
     client.post(
         "/api/v1/auth/reset-password",
         json={
-            "token": token,
-            "new_password": "NewPassword123!"
+            "token": raw_token,
+            "password": "NewPassword123!"
         },
     )
 
@@ -132,13 +140,14 @@ def test_old_password_fails_after_reset(client):
     )
 
     assert response.status_code == 401
+    assert response.json()["detail"] == "Invalid email or password"
 
 def test_reset_password_invalid_token(client):
     response = client.post(
         "/api/v1/auth/reset-password",
         json={
             "token": "invalid-token",
-            "new_password": "NewPassword123!"
+            "password": "NewPassword123!"
         },
     )
 
@@ -148,7 +157,7 @@ def test_reset_password_missing_token(client):
     response = client.post(
         "/api/v1/auth/reset-password",
         json={
-            "new_password": "NewPassword123!"
+            "password": "NewPassword123!"
         },
     )
 
@@ -169,7 +178,7 @@ def test_reset_password_empty_password(client):
         "/api/v1/auth/reset-password",
         json={
             "token": "abc",
-            "new_password": ""
+            "password": ""
         },
     )
 
@@ -190,27 +199,41 @@ def test_reset_password_clears_token(client):
 
     db.commit()
 
-    client.post(
-        "/api/v1/auth/forgot-password",
-        json={
-            "email": user["email"]
-        },
-    )
+    with patch(
+        "app.tasks.email_tasks.send_password_reset_email_task.delay"
+    ) as mock_email:
 
-    db.refresh(db_user)
+        client.post(
+            "/api/v1/auth/forgot-password",
+            json={
+                "email": user["email"]
+            },
+        )
 
-    token = db_user.reset_password_token
+        raw_token = mock_email.call_args.args[1]
 
     client.post(
         "/api/v1/auth/reset-password",
         json={
-            "token": token,
-            "new_password": "NewPassword123!"
+            "token": raw_token,
+            "password": "NewPassword123!"
         },
     )
 
     db.refresh(db_user)
 
-    assert db_user.reset_password_token is None
+    token_hash = TokenService.hash_token(raw_token)
+
+    verification = (
+        db.query(PasswordResetToken)
+        .filter(
+            PasswordResetToken.token_hash == token_hash
+        )
+        .first()
+    )
+
+    assert verification is not None
+    assert verification.used is True
+
 
     db.close()

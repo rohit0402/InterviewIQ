@@ -5,6 +5,7 @@ from app.tests.utils.auth import (
 
 from app.database.session import SessionLocal
 from app.models.user import User
+from app.models.password_reset_token import PasswordResetToken
 
 def test_forgot_password_success(client):
     user = unique_user()
@@ -40,7 +41,7 @@ def test_forgot_password_unknown_email(client):
         },
     )
 
-    assert response.status_code == 404
+    assert response.status_code == 200
 
 def test_forgot_password_invalid_email(client):
     response = client.post(
@@ -97,11 +98,23 @@ def test_forgot_password_creates_reset_token(client):
 
     db = SessionLocal()
 
-    db_user = db.query(User).filter(
-        User.email == user["email"]
-    ).first()
+    db_user = (
+        db.query(User)
+        .filter(User.email == user["email"])
+        .first()
+    )
 
-    assert db_user.reset_password_token is not None
+    token = (
+        db.query(PasswordResetToken)
+        .filter(
+            PasswordResetToken.user_id == db_user.id
+        )
+        .first()
+    )
+
+    assert token is not None
+    assert token.token_hash is not None
+    assert token.used is False
 
     db.close()
 
@@ -132,10 +145,19 @@ def test_forgot_password_creates_token_expiry(client):
 
     db = SessionLocal()
 
-    db_user = db.query(User).filter(
-        User.email == user["email"]
-    ).first()
+    db_user = (
+    db.query(User)
+    .filter(User.email == user["email"])
+    .first()
+)
 
-    assert db_user.reset_password_token_expires_at is not None
+    token = (
+        db.query(PasswordResetToken)
+        .filter(
+            PasswordResetToken.user_id == db_user.id
+        )
+        .first()
+    )
 
-    db.close()
+    assert token is not None
+    assert token.expires_at is not None

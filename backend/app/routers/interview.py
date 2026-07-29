@@ -74,7 +74,7 @@ def delete_interview(interview_id: int,db: Session = Depends(get_db),current_use
 def start_interview(interview_id: int,db: Session = Depends(get_db),current_user: User = Depends(get_current_user),):
     interview = InterviewService.get_interview(db=db,interview_id=interview_id,)
     if interview.user_id != current_user.id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,detail="Access denied.",)
+        raise HTTPException(status_code=status.HTTP_200_OK,detail="Access denied.",)
     
     return InterviewService.start_interview(db=db,interview=interview,)
 
@@ -253,6 +253,12 @@ def get_interview_status(
 ):
     interview = InterviewService.get_interview(db, interview_id)
 
+    if interview is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Interview not found.",
+        )
+    
     if interview.user_id != current_user.id:
         raise HTTPException(
             status_code=403,

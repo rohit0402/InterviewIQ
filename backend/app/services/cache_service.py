@@ -22,7 +22,11 @@ class CacheService:
         ttl: int = DEFAULT_TTL,
     ):
         try:
-            redis_client.setex(key, ttl, json.dumps(value))
+            redis_client.set(
+    key,
+    json.dumps(value),
+    ex=ttl,
+)
         except RedisError:
             pass
 
