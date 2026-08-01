@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from app.core.config import settings
-from app.email.smtp import SMTPClient
+from app.email.resend import ResendClient
 
 
 class EmailService:
@@ -30,7 +30,7 @@ class EmailService:
             verification_url,
         )
 
-        SMTPClient.send_email(
+        ResendClient.send_email(
             to_email=email,
             subject="Verify your InterviewIQ account",
             html=html,
@@ -60,7 +60,7 @@ class EmailService:
             reset_url,
         )
 
-        SMTPClient.send_email(
+        ResendClient.send_email(
             to_email=email,
             subject="Reset your InterviewIQ password",
             html=html,

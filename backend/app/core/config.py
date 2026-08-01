@@ -29,6 +29,9 @@ class Settings(BaseSettings):
 
     log_level: str = "INFO"
 
+    resend_api_key: str | None = None
+    resend_from: str | None = None
+
     model_config = SettingsConfigDict(
         env_file=os.getenv("ENV_FILE", ".env"),
         env_file_encoding="utf-8",
