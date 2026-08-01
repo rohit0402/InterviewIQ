@@ -19,12 +19,12 @@ def create_app()->FastAPI:
     )
 
     app.add_middleware(
-        CORSMiddleware,
-        allow_origins=["http://localhost:5173"],
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
+    CORSMiddleware,
+    allow_origins=settings.backend_cors_origins.split(","),
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
     app.include_router(health_router,prefix=settings.api_v1_prefix)
     app.include_router(auth_router,prefix=settings.api_v1_prefix)
