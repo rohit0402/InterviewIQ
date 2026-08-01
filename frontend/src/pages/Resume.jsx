@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { getResume } from "../api/resumeApi";
 
-import ResumeUpload from "../components/resume/ResumeUpload";
+import ResumeUpload from "../components/resume/ResumeUpload"
 import ResumeCard from "../components/resume/ResumeCard";
 
 function Resume() {

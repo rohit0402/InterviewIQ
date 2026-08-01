@@ -2,6 +2,7 @@ import axios from "axios";
 import { store } from "../app/store";
 import { logoutUser, refreshToken } from "../utils/auth";
 
+console.log("VITE_API_URL =", import.meta.env.VITE_API_URL);
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
   withCredentials: true,
@@ -9,6 +10,7 @@ const api = axios.create({
     "Content-Type": "application/json",
   },
 });
+
 
 api.interceptors.request.use(
   (config) => {

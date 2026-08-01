@@ -47,7 +47,7 @@ export const createInterview = async (payload) => {
 };
 
 export const getInterviews = async () => {
-    const { data } = await api.get("/interviews");
+    const { data } = await api.get("/interviews/");
     return data;
 };
 
