@@ -1,6 +1,6 @@
 import os
 from pydantic_settings import BaseSettings, SettingsConfigDict
-
+from pydantic import Field
 class Settings(BaseSettings):
     """
     Application settings loaded from environment variables.
@@ -44,10 +44,10 @@ class Settings(BaseSettings):
     frontend_url: str
 
 
-    REDIS_HOST: str = "localhost"
-    REDIS_PORT: int = 6379
+    REDIS_HOST: str = Field(default="localhost", alias="REDISHOST")
+    REDIS_PORT: int = Field(default=6379, alias="REDISPORT")
     REDIS_DB: int = 0
-    REDIS_PASSWORD: str | None = None
+    REDIS_PASSWORD: str | None = Field(default=None, alias="REDISPASSWORD")
 
     @property
     def redis_url(self)->str:
