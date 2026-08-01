@@ -73,3 +73,4 @@ pytest-cov==7.0.0
 pytest-mock==3.15.0
 factory-boy==3.3.3
 faker==37.8.0
+resend==2.4.0
