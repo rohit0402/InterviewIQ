@@ -11,6 +11,7 @@ from app.repositories.resume_analysis_repository import (
     ResumeAnalysisRepository,
 )
 from app.tasks.resume_tasks import process_resume_task
+import traceback
 
 class ResumeService:
     @staticmethod
@@ -43,6 +44,7 @@ class ResumeService:
 
         try:
             stored_filename, file_path = FileStorage.save_resume(file)
+            print("Saved file:", file_path)
 
             existing_resume = ResumeRepository.get_by_user_id(
                 db,
@@ -96,9 +98,11 @@ class ResumeService:
             )
 
             resume = ResumeRepository.create(db, resume)
+            print("Resume ID:", resume.id)
 
             try:
                 process_resume_task.delay(resume.id)
+                print("Celery task queued")
 
             except Exception:
 
@@ -120,14 +124,15 @@ class ResumeService:
         except HTTPException:
             raise
 
-        except Exception:
+        except Exception as e:
+            traceback.print_exc()
 
             if file_path:
                 FileStorage.delete_resume(file_path)
 
             raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Failed to upload resume",
+                status_code=500,
+                detail=str(e),
             )
 
     @staticmethod
