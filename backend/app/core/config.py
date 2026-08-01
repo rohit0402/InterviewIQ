@@ -44,10 +44,25 @@ class Settings(BaseSettings):
     frontend_url: str
 
 
-    REDIS_HOST: str = Field(default="localhost", alias="REDISHOST")
-    REDIS_PORT: int = Field(default=6379, alias="REDISPORT")
-    REDIS_DB: int = 0
-    REDIS_PASSWORD: str | None = Field(default=None, alias="REDISPASSWORD")
+    REDIS_HOST: str = Field(
+        default="localhost",
+        alias="REDISHOST",
+    )
+
+    REDIS_PORT: int = Field(
+        default=6379,
+        alias="REDISPORT",
+    )
+
+    REDIS_DB: int = Field(
+        default=0,
+        alias="REDIS_DB",
+    )
+
+    REDIS_PASSWORD: str | None = Field(
+        default=None,
+        alias="REDIS_PASSWORD",
+    )
 
     @property
     def redis_url(self)->str:
