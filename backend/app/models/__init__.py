@@ -4,3 +4,8 @@ from app.models.interview_question import InterviewQuestion
 from app.models.interview_answer import InterviewAnswer
 from .interview_question_insight import InterviewQuestionInsight
 from app.models.password_reset_token import PasswordResetToken
+from app.models.user import User
+from app.models.resume import Resume
+from app.models.resume_analysis import ResumeAnalysis
+from app.models.email_verification_token import EmailVerificationToken
+from app.models.interview_report import InterviewReport
