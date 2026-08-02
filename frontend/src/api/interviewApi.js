@@ -41,6 +41,14 @@ export const getInterviewReport = async (interviewId) => {
     return data;
 };
 
+export const getInterviewStatus = async (interviewId) => {
+    const { data } = await api.get(
+        `/interviews/${interviewId}/status`
+    );
+
+    return data;
+};
+
 export const createInterview = async (payload) => {
     const { data } = await api.post("/interviews", payload);
     return data;

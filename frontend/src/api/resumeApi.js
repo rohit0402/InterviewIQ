@@ -14,7 +14,7 @@ export const uploadResume = async (file) => {
 };
 
 export const getResume = async () => {
-  const { data } = await api.get("/resumes");
+  const { data } = await api.get("/resumes/");
   return data;
 };
 
