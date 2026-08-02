@@ -43,15 +43,18 @@ class ResumeService:
         file_path = None
 
         try:
+            file.file.seek(0, 2)
+            file_size = file.file.tell()
+            file.file.seek(0)
+
             stored_filename, file_path = FileStorage.save_resume(file)
+
             print("Saved file:", file_path)
 
             existing_resume = ResumeRepository.get_by_user_id(
                 db,
                 current_user.id,
             )
-
-            file_size = Path(file_path).stat().st_size
 
             if existing_resume:
 
