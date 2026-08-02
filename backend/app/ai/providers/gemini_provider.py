@@ -16,4 +16,11 @@ class GeminiProvider(BaseProvider):
             contents=prompt,
         )
         
-        return response.text.strip()
+        text = response.text.strip()
+
+        if text.startswith("```json"):
+            text = text.removeprefix("```json").removesuffix("```").strip()
+        elif text.startswith("```"):
+            text = text.removeprefix("```").removesuffix("```").strip()
+
+        return text

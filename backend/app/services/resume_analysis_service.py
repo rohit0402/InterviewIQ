@@ -18,20 +18,29 @@ class ResumeAnalysisService:
         resume: Resume,
     ) -> ResumeAnalysis:
 
+        print("===== Extracting Resume Text =====")
+
         text = ResumeAnalysisService.extract_resume_text(
             db=db,
             resume=resume,
         )
 
-        result = ResumeAnalysisService.run_ai_analysis(
-            text,
-        )
+        print("Extracted characters:", len(text))
+
+        print("===== Running AI =====")
+
+        result = ResumeAnalysisService.run_ai_analysis(text)
+
+        print(result)
+
+        print("===== Saving Analysis =====")
 
         analysis = ResumeAnalysisService.save_analysis(
             db=db,
             resume=resume,
             result=result,
         )
+        print("===== Analysis Saved =====")
 
         return analysis
     
@@ -39,7 +48,12 @@ class ResumeAnalysisService:
     def extract_resume_text(db: Session,resume: Resume,) -> str:
         text = PdfService.extract_text(resume.file_path,)
         resume.raw_text = text
-        ResumeRepository.update_status(db, resume)
+
+        ResumeRepository.update(
+            db=db,
+            resume=resume,
+        )
+
         return text
     
     @staticmethod
