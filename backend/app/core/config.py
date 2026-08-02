@@ -46,6 +46,9 @@ class Settings(BaseSettings):
 
     frontend_url: str
 
+    supabase_url: str
+    supabase_key: str
+    supabase_bucket: str = "resumes"
 
     REDIS_HOST: str = Field(
         default="localhost",

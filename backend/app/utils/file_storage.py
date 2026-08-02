@@ -1,25 +1,46 @@
-import shutil
 import uuid
-from pathlib import Path
+
 from fastapi import UploadFile
 
-UPLOAD_DIR=Path("uploads/resumes")
-UPLOAD_DIR.mkdir(parents=True,exist_ok=True)
+from app.core.supabase import supabase
+
+
+BUCKET_NAME = "resumes"
+
 
 class FileStorage:
 
     @staticmethod
-    def save_resume(file:UploadFile):
-        extension=Path(file.filename).suffix
+    def save_resume(file: UploadFile):
 
-        stored_filename=f"{uuid.uuid4()}{extension}"
-        file_path=UPLOAD_DIR/stored_filename
-        with open(file_path,"wb") as buffer:
-            shutil.copyfileobj(file.file,buffer)
-        return stored_filename, str(file_path)
-    
+        extension = file.filename.split(".")[-1]
+
+        stored_filename = f"{uuid.uuid4()}.{extension}"
+
+        file_bytes = file.file.read()
+
+        supabase.storage.from_(BUCKET_NAME).upload(
+            path=stored_filename,
+            file=file_bytes,
+            file_options={
+                "content-type": file.content_type,
+            },
+        )
+
+        return stored_filename, stored_filename
+
     @staticmethod
-    def delete_resume(file_path:str):
-        path=Path(file_path)
-        if path.exists():
-            path.unlink()
+    def delete_resume(file_path: str):
+
+        supabase.storage.from_(BUCKET_NAME).remove(
+            [file_path]
+        )
+
+    @staticmethod
+    def get_public_url(file_path: str):
+
+        return (
+            supabase.storage
+            .from_(BUCKET_NAME)
+            .get_public_url(file_path)
+        )
