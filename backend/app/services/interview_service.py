@@ -90,8 +90,18 @@ class InterviewService:
     
     @staticmethod
     def start_interview(db,interview):
+        print("===================================")
+        print("DB status:", interview.status)
+        print("READY enum:", InterviewStatus.READY)
+        print("Equal?", interview.status == InterviewStatus.READY)
+        print("Type:", type(interview.status))
+        print("===================================")
+
         if interview.status != InterviewStatus.READY:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail="Interview is not ready to start",)
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Interview is not ready to start",
+            )
         question=QuestionService.generate_first_question(db=db,interview=interview,resume_analysis=interview.resume.analysis,interview_analysis=interview.analysis)
         InterviewRepository.update_status(
             db=db,
