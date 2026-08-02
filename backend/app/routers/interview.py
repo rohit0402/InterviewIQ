@@ -266,5 +266,5 @@ def get_interview_status(
         )
 
     return {
-        "status": interview.status,
+        "status": interview.status.value,
     }

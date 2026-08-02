@@ -29,7 +29,7 @@ class DashboardService:
         completed = [
             interview
             for interview in interviews
-            if interview.status == InterviewStatus.COMPLETED
+            if interview.status == InterviewStatus.FINISHED
         ]
 
         reports = []
