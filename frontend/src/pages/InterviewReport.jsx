@@ -3,6 +3,7 @@ import { useLocation, useParams } from "react-router-dom";
 
 import { getInterviewReport } from "../api/interviewApi";
 import QuestionReportCard from "../components/report/QuestionReportCard";
+
 function ScoreCard({ title, score }) {
   const scoreColor =
     score >= 8
@@ -22,12 +23,21 @@ function ScoreCard({ title, score }) {
 }
 
 function InterviewReport() {
+  console.log("InterviewReport Mounted");
+
   const { id } = useParams();
   const location = useLocation();
 
   const [report, setReport] = useState(location.state || null);
   const [loading, setLoading] = useState(!location.state);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+  console.log("useEffect running", id);
+
+  let cancelled = false;
+
+}, [id]);
 
 useEffect(() => {
   let cancelled = false;
