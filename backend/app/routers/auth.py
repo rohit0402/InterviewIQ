@@ -38,8 +38,8 @@ def login(
             key="refresh_token",
             value=token.refresh_token,
             httponly=True,
-            secure=False,          # True in production (HTTPS)
-            samesite="lax",
+            secure=True,          # True in production (HTTPS)
+            samesite="none",
             max_age=60 * 60 * 24 * 7,
         )
 

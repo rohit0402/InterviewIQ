@@ -78,20 +78,22 @@ class AuthService:
     
     @staticmethod
     def refresh_token(db: Session, refresh_token: str) -> TokenPair:
+        print("=" * 60)
+        print("COOKIE TOKEN:", refresh_token)
+
         user = UserRepository.get_by_refresh_token(db, refresh_token)
+
+        print("USER FOUND:", user)
 
         if user is None:
             raise ValueError("Invalid refresh token")
 
         try:
             payload = decode_token(refresh_token)
-        except Exception:
+            print("PAYLOAD:", payload)
+        except Exception as e:
+            print("JWT ERROR:", e)
             raise ValueError("Invalid or expired refresh token")
-
-        if payload.get("type") != "refresh":
-            raise ValueError("Invalid token type")
-
-        user = UserRepository.get_by_refresh_token(db, refresh_token)
 
         access_token = create_access_token(
             {
@@ -102,10 +104,9 @@ class AuthService:
         )
 
         return TokenPair(
-    access_token=access_token,
-    refresh_token=refresh_token,
-)
-    
+            access_token=access_token,
+            refresh_token=refresh_token,
+        )
 
     @staticmethod
     def logout(db: Session, refresh_token: str):
