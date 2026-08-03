@@ -29,11 +29,9 @@ function InterviewSession() {
     try {
       setNextLoading(true);
 
-      const report = await finishInterview(id);
+      await finishInterview(id);
 
-      navigate(`/interviews/${id}/report`, {
-        state: report,
-      });
+      navigate(`/interviews/${id}/report`);
     } catch (error) {
       console.error(error);
     } finally {
@@ -52,7 +50,12 @@ function InterviewSession() {
         const status = await getInterviewStatus(id);
 
         if (status.status === "READY") {
-          break;
+          break;  
+        }
+
+        if (status.status === "REPORT_READY") {
+          navigate(`/interviews/${id}/report`);
+          return;
         }
 
         if (status.status === "FAILED") {
@@ -100,11 +103,9 @@ function InterviewSession() {
       // setFeedback(null);
     } catch (error) {
       try {
-        const report = await finishInterview(id);
+        await finishInterview(id);
 
-        navigate(`/interviews/${id}/report`, {
-          state: report,
-        });
+        navigate(`/interviews/${id}/report`);
       } catch (finishError) {
         console.error(finishError);
       }

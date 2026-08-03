@@ -15,7 +15,7 @@ function Reports() {
 
         setReports(
           interviews.filter(
-            (item) => item.status === "COMPLETED"
+            (item) => item.status === "REPORT_READY" || item.status === "FINISHED"
           )
         );
       } catch (error) {

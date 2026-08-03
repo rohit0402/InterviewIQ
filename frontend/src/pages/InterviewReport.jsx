@@ -29,26 +29,42 @@ function InterviewReport() {
   const [loading, setLoading] = useState(!location.state);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    if (location.state) return;
+useEffect(() => {
+  let cancelled = false;
 
-    const loadReport = async () => {
+  const loadReport = async () => {
+    while (!cancelled) {
       try {
-        setLoading(true);
-
         const data = await getInterviewReport(id);
 
-        setReport(data);
-      } catch (err) {
-        console.error(err);
-        setError("Unable to load interview report.");
-      } finally {
-        setLoading(false);
-      }
-    };
+        if (!cancelled) {
+          setReport(data);
+          setLoading(false);
+        }
 
-    loadReport();
-  }, [id, location.state]);
+        return;
+      } catch (err) {
+        if (err.response?.status === 202) {
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+          continue;
+        }
+
+        if (!cancelled) {
+          setError("Unable to load interview report.");
+          setLoading(false);
+        }
+
+        return;
+      }
+    }
+  };
+
+  loadReport();
+
+  return () => {
+    cancelled = true;
+  };
+}, [id]);
 
   if (loading) {
     return (

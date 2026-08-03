@@ -33,18 +33,7 @@ function Dashboard() {
       <div className="flex justify-center py-20">Loading Dashboard...</div>
     );
   }
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "COMPLETED":
-        return "bg-green-100 text-green-700";
 
-      case "IN_PROGRESS":
-        return "bg-yellow-100 text-yellow-700";
-
-      default:
-        return "bg-gray-100 text-gray-700";
-    }
-  };
   if (!dashboard) {
     return <div>Loading...</div>;
   } else {
@@ -160,14 +149,14 @@ function Dashboard() {
                     <p className="text-gray-500">{item.job_role}</p>
 
                     <span
-                      className={`inline-block mt-3 px-3 py-1 rounded-full text-sm font-medium ${
-                        item.status === "COMPLETED"
-                          ? "bg-green-100 text-green-700"
-                          : "bg-yellow-100 text-yellow-700"
-                      }`}
-                    >
-                      {item.status.replace("_", " ")}
-                    </span>
+  className={`inline-block mt-3 px-3 py-1 rounded-full text-sm font-medium ${
+    item.status === "REPORT_READY"
+      ? "bg-green-100 text-green-700"
+      : "bg-yellow-100 text-yellow-700"
+  }`}
+>
+  {item.status.replace(/_/g, " ")}
+</span>
                   </div>
 
                   <div className="flex items-center gap-5">
@@ -182,7 +171,7 @@ function Dashboard() {
                       </div>
                     )}
 
-                    {item.status === "COMPLETED" ? (
+                    {item.status === "REPORT_READY" ? (
                       <button
                         onClick={() =>
                           navigate(`/interviews/${item.id}/report`)
