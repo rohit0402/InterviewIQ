@@ -39,11 +39,7 @@ function AppRoutes() {
               path="/interviews/:id/session"
               element={<InterviewSession />}
             />
-            <Route
-              path="/interv
-              iews/:id/report"
-              element={<InterviewReport />}
-            />
+            <Route path="/interviews/:id/report" element={<InterviewReport />} />
             <Route path="/reports" element={<Reports />} />
             <Route path="/profile" element={<Profile />} />
           </Route>
