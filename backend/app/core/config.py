@@ -29,8 +29,9 @@ class Settings(BaseSettings):
 
     log_level: str = "INFO"
 
-    resend_api_key: str | None = None
-    resend_from: str | None = None
+    brevo_api_key: str
+    brevo_sender_email: str
+    brevo_sender_name: str
 
     model_config = SettingsConfigDict(
         env_file=os.getenv("ENV_FILE", ".env"),
