@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from app.core.config import settings
-from app.email.resend import ResendClient
+from app.email.brevo import BrevoClient
 
 
 class EmailService:
@@ -30,7 +30,7 @@ class EmailService:
             verification_url,
         )
 
-        ResendClient.send_email(
+        BrevoClient.send_email(
             to_email=email,
             subject="Verify your InterviewIQ account",
             html=html,
@@ -60,7 +60,7 @@ class EmailService:
             reset_url,
         )
 
-        ResendClient.send_email(
+        BrevoClient.send_email(
             to_email=email,
             subject="Reset your InterviewIQ password",
             html=html,
