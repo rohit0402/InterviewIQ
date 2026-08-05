@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { refresh, getCurrentUser } from "../api/authApi";
-import { setCredentials } from "../features/auth/authSlice";
+import { setCredentials,setInitialized } from "../features/auth/authSlice";
 
 export default function AuthInitializer({ children }) {
   const dispatch = useDispatch();
@@ -20,7 +20,7 @@ export default function AuthInitializer({ children }) {
           })
         );
       } catch {
-        // User is not logged in or refresh token is invalid
+        dispatch(setInitialized());
       } finally {
         setLoading(false);
       }
