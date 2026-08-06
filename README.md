@@ -142,61 +142,50 @@ The backend is built using production-ready architecture with FastAPI, PostgreSQ
 
 ## Login
 
-![Login](screenshots/login.png)
+![Login](screenshots/login/Screenshot%202026-08-06%20230228.png)
 
 ---
 
 ## Register
 
-![Register](screenshots/register.png)
+![Register](screenshots/register/Screenshot%202026-08-06%20230228.png)
 
 ---
 
 ## Email Verification
 
-![Verification](screenshots/email.png)
+![Verification](screenshots/email/Screenshot%202026-08-06%20230228.png)
 
 ---
 
 ## Resume Upload
 
-![Resume Upload](screenshots/upload.png)
+![Resume Upload](screenshots/resume-upload/Screenshot%202026-08-06%20230228.png)
 
 ---
 
 ## Resume Analysis
 
-![Resume Analysis](screenshots/resume-analysis.png)
+![Resume Analysis](screenshots/resume-analysis/Screenshot%202026-08-06%20230228.png)
 
 ---
 
 ## AI Interview
 
-![Interview](screenshots/interview.png)
+![Interview](screenshots/interview/Screenshot%202026-08-06%20230228.png)
 
 ---
 
 ## AI Report
 
-![Report](screenshots/report.png)
+![Report](screenshots/report/Screenshot%202026-08-06%20230228.png)
 
 ---
 
-## Question Analysis
-
-![Question Analysis](screenshots/question-analysis.png)
-
----
-
-## Reports Dashboard
-
-![Reports](screenshots/reports.png)
-
----
 
 ## Swagger Documentation
 
-![Swagger](screenshots/swagger.png)
+![Swagger](screenshots/swagger/Screenshot%202026-08-06%20230228.png)
 
 ---
 
@@ -227,7 +216,7 @@ InterviewIQ
 ## Clone Repository
 
 ```bash
-git clone https://github.com/yourusername/InterviewIQ.git
+git clone https://github.com/rohit0402/InterviewIQ.git
 
 cd InterviewIQ
 ```
@@ -355,10 +344,6 @@ This project is licensed under the MIT License.
 # 👨‍💻 Author
 
 **Rohit Sonar**
-
-- LinkedIn
-- GitHub
-- Email
 
 ---
 
