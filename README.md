@@ -148,44 +148,79 @@ The backend is built using production-ready architecture with FastAPI, PostgreSQ
 
 ## Register
 
-![Register](screenshots/register/Screenshot%202026-08-06%20230228.png)
+![Register](screenshots/register/Screenshot%202026-08-06%20230245.png)
 
 ---
 
 ## Email Verification
 
-![Verification](screenshots/email/Screenshot%202026-08-06%20230228.png)
+![Email Verification](screenshots/email/Screenshot%202026-08-06%20230457.png)
 
 ---
 
 ## Resume Upload
 
-![Resume Upload](screenshots/resume-upload/Screenshot%202026-08-06%20230228.png)
+![Resume Upload](screenshots/resume-upload/Screenshot%202026-08-06%20230618.png)
 
 ---
 
 ## Resume Analysis
 
-![Resume Analysis](screenshots/resume-analysis/Screenshot%202026-08-06%20230228.png)
+### Resume Uploaded
+
+![Resume Uploaded](screenshots/resume-analysis/Screenshot%202026-08-06%20230702.png)
+
+### AI Resume Analysis
+
+![Resume Analysis](screenshots/resume-analysis/Screenshot%202026-08-06%20230717.png)
 
 ---
 
 ## AI Interview
 
-![Interview](screenshots/interview/Screenshot%202026-08-06%20230228.png)
+### Interview Question
+
+![Interview Question](screenshots/interview/Screenshot%202026-08-06%20230800.png)
+
+### Next Question
+
+![Interview Question](screenshots/interview/Screenshot%202026-08-06%20232236.png)
 
 ---
 
-## AI Report
+## Interview Report
 
-![Report](screenshots/report/Screenshot%202026-08-06%20230228.png)
+### Overall Report
+
+![Overall Report](screenshots/report/Screenshot%202026-08-06%20232129.png)
+
+### Summary & Hiring Recommendation
+
+![Summary](screenshots/report/Screenshot%202026-08-06%20232152.png)
+
+### Improvement Plan
+
+![Improvement Plan](screenshots/report/Screenshot%202026-08-06%20232208.png)
+
+### Question-wise Analysis
+
+![Question Analysis](screenshots/report/Screenshot%202026-08-06%20232225.png)
 
 ---
 
+## Swagger API Documentation
 
-## Swagger Documentation
+### Authentication APIs
 
-![Swagger](screenshots/swagger/Screenshot%202026-08-06%20230228.png)
+![Swagger Auth](screenshots/swagger/Screenshot%202026-08-06%20232751.png)
+
+### Resume APIs
+
+![Swagger Resume](screenshots/swagger/Screenshot%202026-08-06%20232804.png)
+
+### Interview APIs
+
+![Swagger Interview](screenshots/swagger/Screenshot%202026-08-06%20232819.png)
 
 ---
 
